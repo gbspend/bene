@@ -16,13 +16,17 @@ class Network(object):
 
     def build(self):
         state = 'network'
+        started = False
         with open(self.config) as f:
             for line in f.readlines():
                 if line.startswith('#'):
                     continue
                 if line.strip() == "":
+                    if not started:
+                        continue
                     state = 'links'
                 if state == 'network':
+                    started = True
                     self.create_network(line)
                 elif state == 'links':
                     self.configure_link(line)
@@ -45,11 +49,10 @@ class Network(object):
         start = self.get_node(fields[0])
         l = start.get_link(fields[1])
         for i in range(2, len(fields)):
-            if fields[i].endswith("bps"):
+            unit = self.units(fields[i])
+            if "bps" in unit:
                 self.set_bandwidth(l, fields[i])
-            if fields[i].endswith("ms"):
-                self.set_delay(l, fields[i])
-            if fields[i].endswith("seconds"):
+            if "sec" in unit or unit == "s" or unit == "ms":
                 self.set_delay(l, fields[i])
             if fields[i].endswith("pkts"):
                 self.set_queue(l, fields[i])
@@ -81,7 +84,7 @@ class Network(object):
         numeric_delay = self.convert(delay)
         if delay.endswith("ms"):
             link.propagation = numeric_delay / 1000.0
-        if delay.endswith("seconds"):
+        else: #seconds
             link.propagation = numeric_delay
 
     def set_queue(self, link, size):
@@ -97,3 +100,7 @@ class Network(object):
     @staticmethod
     def convert(value):
         return float(re.sub("[^0-9.]", "", value))
+    
+    @staticmethod
+    def units(value):
+        return re.sub("[0-9.]", "", value).strip()

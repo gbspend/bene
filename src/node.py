@@ -34,7 +34,8 @@ class Node(object):
         for link in self.links:
             if link.endpoint.hostname == name:
                 return link.address
-        return 0
+        #instead of silently returning a broadcast address!
+        raise ValueError(f"{self.hostname} has no link to {name}")
 
     # -- Protocols --
 

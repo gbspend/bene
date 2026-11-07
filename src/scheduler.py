@@ -8,8 +8,8 @@ class Scheduler(object):
         self.count = itertools.count()
         self.scheduler = sched.scheduler(self.current_time, self.advance_time)
 
-    def reset(self):
-        self.current = 0
+    # to reset, use: Sim.scheduler = Scheduler()
+    #def reset(self)
 
     def current_time(self):
         return self.current

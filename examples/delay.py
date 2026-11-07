@@ -5,6 +5,7 @@ import sys
 sys.path.append('..')
 
 from src.sim import Sim
+from src.scheduler import Scheduler
 from src.packet import Packet
 
 from networks.network import Network
@@ -49,7 +50,7 @@ class DelayHandler(object):
 
 def main():
     # parameters
-    Sim.scheduler.reset()
+    Sim.scheduler = Scheduler()
 
     # setup network
     net = Network('../networks/one-hop.txt')

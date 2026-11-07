@@ -22,5 +22,5 @@ class Sim(object):
         if 'Plot' not in Sim.debug:
             return
         if filename not in Sim.files:
-            Sim.files[filename] = open(filename,'wb')
+            Sim.files[filename] = open(filename,'w')
         Sim.files[filename].write(message)

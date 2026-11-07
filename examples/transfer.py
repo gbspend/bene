@@ -6,12 +6,13 @@ import sys
 sys.path.append('..')
 
 from src.sim import Sim
+from src.scheduler import Scheduler
 from src.transport import Transport
 from src.tcp import TCP
 
 from networks.network import Network
 
-import optparse
+import argparse
 import os
 import subprocess
 
@@ -40,20 +41,15 @@ class Main(object):
         self.loss = None
 
     def parse_options(self):
-        parser = optparse.OptionParser(usage="%prog [options]",
-                                       version="%prog 0.1")
+        parser = argparse.ArgumentParser(description="Send a file over a simulated TCP connection.")
+        parser.add_argument("filename", help="file to send")
+        parser.add_argument("-l", "--loss", type=float, default=0.0,
+                            help="random loss rate (default: 0.0)")
+        parser.add_argument("--version", action="version", version="%(prog)s 0.1")
 
-        parser.add_option("-f", "--filename", type="str", dest="filename",
-                          default='test.txt',
-                          help="filename to send")
-
-        parser.add_option("-l", "--loss", type="float", dest="loss",
-                          default=0.0,
-                          help="random loss rate")
-
-        (options, args) = parser.parse_args()
-        self.filename = options.filename
-        self.loss = options.loss
+        args = parser.parse_args()
+        self.filename = args.filename
+        self.loss = args.loss
 
     def diff(self):
         args = ['diff', '-u', self.filename, os.path.join(self.directory, self.filename)]
@@ -68,7 +64,7 @@ class Main(object):
 
     def run(self):
         # parameters
-        Sim.scheduler.reset()
+        Sim.scheduler = Scheduler()
         Sim.set_debug('AppHandler')
         Sim.set_debug('TCP')
         Sim.set_debug('Plot')
