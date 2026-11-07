@@ -13,8 +13,8 @@ from src.tcp import TCP
 from networks.network import Network
 
 import argparse
+import filecmp
 import os
-import subprocess
 
 
 class AppHandler(object):
@@ -29,6 +29,9 @@ class AppHandler(object):
         Sim.trace('AppHandler', "application got %d bytes" % (len(data)))
         self.f.write(data)
         self.f.flush()
+
+    def close(self):
+        self.f.close()
 
 
 class Main(object):
@@ -52,15 +55,12 @@ class Main(object):
         self.loss = args.loss
 
     def diff(self):
-        args = ['diff', '-u', self.filename, os.path.join(self.directory, self.filename)]
-        result = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()[0]
+        received = os.path.join(self.directory, self.filename)
         print()
-        if not result:
+        if filecmp.cmp(self.filename, received, shallow=False):
             print("File transfer correct!")
         else:
-            print("File transfer failed. Here is the diff:")
-            print()
-            print(result)
+            print("File transfer failed: %s and %s differ." % (self.filename, received))
 
     def run(self):
         # parameters
@@ -100,6 +100,7 @@ class Main(object):
 
         # run the simulation
         Sim.scheduler.run()
+        a.close()
 
 
 if __name__ == '__main__':
